@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/jinzhu/configor"
+	"github.com/ufwfqpdgv/log"
 )
 
 var _cfg *Config
@@ -33,7 +34,7 @@ type Config struct {
 		App_id  int
 	}
 
-	Log_info_item   Log_info
+	Log_info_item   log.Log_info
 	Internal_server map[string]Internal_serverStruct
 
 	DB_whole_item      DBWhole
@@ -47,18 +48,6 @@ type Config struct {
 	Sentry_dsn_item Sentry_dsn
 
 	ES_item ES
-}
-
-type Log_info struct {
-	Level            string
-	Encoding         string
-	Stdout           bool
-	Development_mode bool
-	Path_filename    string
-	Max_size         int
-	Max_backups      int
-	Max_age          int
-	Compress         bool
 }
 
 type Internal_serverStruct struct {

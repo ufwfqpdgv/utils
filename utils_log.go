@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/ufwfqpdgv/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
@@ -13,12 +14,12 @@ import (
 
 type Log struct {
 	*zap.Logger
-	Config Log_info
+	Config log.Log_info
 }
 
 var l *Log
 
-func LogInit(c Log_info) {
+func LogInit(c log.Log_info) {
 	hook := lumberjack.Logger{
 		Filename:   c.Path_filename, // 日志文件路径
 		MaxSize:    c.Max_size,      // 每个日志文件保存的最大尺寸 单位：M
