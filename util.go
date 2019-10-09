@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"math"
-	"net/http"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -268,15 +267,4 @@ func NowFunc() string {
 func NowFuncError() string {
 	pc, _, _, _ := runtime.Caller(1)
 	return "NowFunc:" + runtime.FuncForPC(pc).Name() + " Error "
-}
-
-func RecoverFunc(c *gin.Context) {
-	if rec := recover(); rec != nil {
-		c.Header("Content-Type", "text/json; charset=utf-8")
-		c.String(http.StatusInternalServerError, "[]")
-		buf := make([]byte, 4096)
-		n := runtime.Stack(buf, false)
-		// utils.CheckErrSendEmail(fmt.Errorf("recovery:%s\nstack:%s", rec, string(buf[:n])))
-		log.Panicf("recovery:%s\nstack:%s", rec, string(buf[:n]))
-	}
 }
