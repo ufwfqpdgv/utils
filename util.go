@@ -17,7 +17,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/pkg/errors"
 	"github.com/ufwfqpdgv/log"
-	"github.com/ufwfqpdgv/samh_common_lib"
 	"github.com/viant/toolbox"
 )
 
@@ -161,11 +160,9 @@ func NewConfigWatcher(env string, init func()) {
 	<-done
 }
 
-func ArrToSet(arr interface{}) (set mapset.Set, retCode samh_common_lib.SamhResponseCode) {
+func ArrToSet(arr interface{}) (set mapset.Set, err error) {
 	Debug(NowFunc())
 	defer Debug(NowFunc() + " end")
-
-	retCode = samh_common_lib.SamhResponseCode_Succ
 
 	set = mapset.NewSet()
 	switch arr.(type) {
@@ -182,7 +179,7 @@ func ArrToSet(arr interface{}) (set mapset.Set, retCode samh_common_lib.SamhResp
 			set.Add(v)
 		}
 	default:
-		retCode = samh_common_lib.SamhResponseCode_Param_Invalid
+		err = errors.New("参数无效")
 		return
 	}
 

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ufwfqpdgv/samh_common_lib"
+	"github.com/pkg/errors"
 	resty "gopkg.in/resty.v1"
 )
 
@@ -68,19 +68,15 @@ func getClient(url string) (key string) {
 	return
 }
 
-func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers map[string]string, retryCount int) (retCode samh_common_lib.SamhResponseCode) {
+func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers map[string]string, retryCount int) (err error) {
 	Debug(NowFunc())
 	defer Debug(NowFunc() + " end")
 
 	Infof("GET,Url:%v,Request:%+v", url, rq)
-	retCode = samh_common_lib.SamhResponseCode_Succ
-	var (
-		err error
-	)
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
@@ -98,7 +94,7 @@ func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers m
 
 	response, err := clientMap[getClient(url)].Do(request)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err, response)
 		return
 	}
@@ -107,13 +103,13 @@ func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers m
 
 	responseBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
 	err = Json.Unmarshal(responseBytes, rsp)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
@@ -123,25 +119,22 @@ func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers m
 	return
 }
 
-func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers map[string]string, retryCount int) (retCode samh_common_lib.SamhResponseCode) {
+func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers map[string]string, retryCount int) (err error) {
 	Debug(NowFunc())
 	defer Debug(NowFunc() + " end")
 
 	Infof("POST,Url:%v,Request:%+v", url, rq)
-	var (
-		err error
-	)
 
 	bytesData, err := json.Marshal(rq)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
 	reader := bytes.NewReader(bytesData)
 	request, err := http.NewRequest("POST", url, reader)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
@@ -153,7 +146,7 @@ func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers 
 
 	response, err := clientMap[getClient(url)].Do(request)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
@@ -162,13 +155,13 @@ func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers 
 
 	responseBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
 	err = Json.Unmarshal(responseBytes, rsp)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("服务器错误")
 		Error(err)
 		return
 	}
@@ -251,7 +244,7 @@ func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers 
 } */
 
 //旧版本的只支持这样form的并把rq先转成json串的样式
-func HttpPost2(url string, rq interface{}, rsp interface{}, timeout int) (retCode samh_common_lib.SamhResponseCode) {
+func HttpPost2(url string, rq interface{}, rsp interface{}, timeout int) (err error) {
 	Debug(NowFunc())
 	defer Debug(NowFunc() + " end")
 
@@ -260,7 +253,7 @@ func HttpPost2(url string, rq interface{}, rsp interface{}, timeout int) (retCod
 	b, err := Json.Marshal(rq)
 	if err != nil {
 		Error(err.Error())
-		retCode = samh_common_lib.SamhResponseCode_Param_Invalid
+		err = errors.New("参数无效")
 		return
 	}
 	resp, err := resty.R().
@@ -269,11 +262,10 @@ func HttpPost2(url string, rq interface{}, rsp interface{}, timeout int) (retCod
 		SetResult(rsp).
 		Post(url)
 	if err != nil {
-		retCode = samh_common_lib.SamhResponseCode_ServerError
+		err = errors.New("参数无效")
 		Error(err, resp)
 		return
 	}
-	retCode = samh_common_lib.SamhResponseCode_Succ
 	Infof("Response:%+v", rsp)
 
 	return
