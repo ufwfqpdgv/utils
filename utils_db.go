@@ -6,14 +6,15 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/ufwfqpdgv/log"
 	"github.com/xormplus/core"
 	"github.com/xormplus/xorm"
 )
 
 func InitDB(cfg DB, outputlog bool) (db *xorm.Engine) {
-	Debug(NowFunc())
-	defer Debug(NowFunc() + " end")
-	Debugf("outputlog:%v", outputlog)
+	log.Debug(NowFunc())
+	defer log.Debug(NowFunc() + " end")
+	log.Debugf("outputlog:%v", outputlog)
 
 	db = &xorm.Engine{}
 	var connectStr string
@@ -28,12 +29,12 @@ func InitDB(cfg DB, outputlog bool) (db *xorm.Engine) {
 	var err error
 	db, err = xorm.NewEngine(cfg.Type, connectStr)
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 
 	err = db.Ping()
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 
 	db.SetMapper(core.GonicMapper{})
@@ -49,12 +50,12 @@ func InitDB(cfg DB, outputlog bool) (db *xorm.Engine) {
 	if outputlog {
 		exist, err := pathExists(cfg.Log_path)
 		if err != nil {
-			Panic(err)
+			log.Panic(err)
 		}
 		if !exist {
 			err = os.Mkdir(cfg.Log_path, os.ModePerm)
 			if err != nil {
-				Panic(err)
+				log.Panic(err)
 			}
 		}
 		pathFileName := cfg.Log_path + cfg.Log_name
@@ -62,12 +63,12 @@ func InitDB(cfg DB, outputlog bool) (db *xorm.Engine) {
 		if err != nil && os.IsNotExist(err) {
 			file, err = os.Create(pathFileName)
 			if err != nil {
-				Panic(err)
+				log.Panic(err)
 			}
 		} else {
 			file, err = os.OpenFile(pathFileName, os.O_WRONLY|os.O_APPEND, 0666)
 			if err != nil {
-				Panic(err)
+				log.Panic(err)
 			}
 		}
 		db.SetLogger(xorm.NewSimpleLogger(file))

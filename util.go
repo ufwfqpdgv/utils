@@ -105,12 +105,12 @@ func IsAndroidOldVersion(c *gin.Context) bool {
 }
 
 func NewConfigWatcher(env string, init func()) {
-	Info(NowFunc())
-	defer Info(NowFunc() + " end")
+	log.Info(NowFunc())
+	defer log.Info(NowFunc() + " end")
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 	defer watcher.Close()
 
@@ -120,7 +120,7 @@ func NewConfigWatcher(env string, init func()) {
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
-					Error(NowFuncError())
+					log.Error(NowFuncError())
 					return
 				}
 
@@ -130,7 +130,7 @@ func NewConfigWatcher(env string, init func()) {
 				if err != nil {
 					var stderr bytes.Buffer
 					cmd.Stderr = &stderr
-					Errorf("%v\n%v", err, stderr)
+					log.Errorf("%v\n%v", err, stderr)
 					// golang 执行 shell 语句时会莫名其秒的报错，实际上结果是对的，如这里的改 toml 文件的时候，在配置项最后加上多余的空格这里也是err并提示"ls: 无法访问dev_config.toml~: 没有那个文件或目录"
 					continue
 				}
@@ -139,30 +139,30 @@ func NewConfigWatcher(env string, init func()) {
 				for _, v := range notifyFileArr {
 					if event.Name == fmt.Sprintf("config/%v/%v", env, v) &&
 						event.Op&fsnotify.Write == fsnotify.Write {
-						Info("modified file:", event.Name)
+						log.Info("modified file:", event.Name)
 						init()
 					}
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
-					Error(NowFuncError())
+					log.Error(NowFuncError())
 					return
 				}
-				Error(err)
+				log.Error(err)
 			}
 		}
 	}()
 
 	err = watcher.Add(fmt.Sprintf("config/%v", env))
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 	<-done
 }
 
 func ArrToSet(arr interface{}) (set mapset.Set, err error) {
-	Debug(NowFunc())
-	defer Debug(NowFunc() + " end")
+	log.Debug(NowFunc())
+	defer log.Debug(NowFunc() + " end")
 
 	set = mapset.NewSet()
 	switch arr.(type) {
@@ -220,7 +220,7 @@ func CheckServerConnect(rqUrl string) (rspErr error) {
 		if err != nil {
 			var stderr bytes.Buffer
 			cmd.Stderr = &stderr
-			Errorf("%v\n%v", err, stderr)
+			log.Errorf("%v\n%v", err, stderr)
 			// golang 执行 shell 语句时会莫名其秒的报错，实际上结果是对的
 		}
 		exist := strings.Contains(string(out), "Connected")

@@ -7,10 +7,11 @@ import (
 
 	elasticsearch "github.com/elastic/go-elasticsearch"
 	"github.com/elastic/go-elasticsearch/esapi"
+	"github.com/ufwfqpdgv/log"
 )
 
 func InitEsClient(es ES) (client *elasticsearch.Client, err error) {
-	Debug(NowFunc())
+	log.Debug(NowFunc())
 
 	for _, v := range es.Addr_arr_arr {
 		cfg := elasticsearch.Config{
@@ -30,14 +31,14 @@ func InitEsClient(es ES) (client *elasticsearch.Client, err error) {
 		}
 		client, err = elasticsearch.NewClient(cfg)
 		if err != nil {
-			Error(err)
+			log.Error(err)
 			continue
 		}
 
 		var res *esapi.Response
 		res, err = client.Ping()
 		if err != nil {
-			Error(err)
+			log.Error(err)
 			continue
 		}
 		defer res.Body.Close()
@@ -45,10 +46,10 @@ func InitEsClient(es ES) (client *elasticsearch.Client, err error) {
 			var e map[string]interface{}
 			err = Json.NewDecoder(res.Body).Decode(&e)
 			if err != nil {
-				Error(err)
+				log.Error(err)
 				continue
 			}
-			Errorf("[%v] %v: %v",
+			log.Errorf("[%v] %v: %v",
 				res.Status(),
 				e["error"].(map[string]interface{})["type"],
 				e["error"].(map[string]interface{})["reason"],

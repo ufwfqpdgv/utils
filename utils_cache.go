@@ -5,10 +5,11 @@ import (
 	// "time"
 
 	"github.com/go-redis/redis"
+	"github.com/ufwfqpdgv/log"
 )
 
 func InitRedisClient(rc Redis) (client *redis.Client) {
-	Debug(NowFunc())
+	log.Debug(NowFunc())
 
 	client = redis.NewClient(&redis.Options{
 		Network:    rc.Network,
@@ -19,14 +20,14 @@ func InitRedisClient(rc Redis) (client *redis.Client) {
 	})
 	err := client.Ping().Err()
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 
 	return
 }
 
 func InitRedisCluster(rc RedisCluster) (clusterClient *redis.ClusterClient) {
-	Debug(NowFunc())
+	log.Debug(NowFunc())
 
 	clusterClient = redis.NewClusterClient(&redis.ClusterOptions{
 		Password:   rc.Password,
@@ -52,11 +53,11 @@ func InitRedisCluster(rc RedisCluster) (clusterClient *redis.ClusterClient) {
 	var err error
 	err = clusterClient.Ping().Err()
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 	err = clusterClient.ReloadState()
 	if err != nil {
-		Panic(err)
+		log.Panic(err)
 	}
 
 	return

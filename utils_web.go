@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/ufwfqpdgv/log"
 	resty "gopkg.in/resty.v1"
 )
 
@@ -69,15 +70,15 @@ func getClient(url string) (key string) {
 }
 
 func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers map[string]string, retryCount int) (err error) {
-	Debug(NowFunc())
-	defer Debug(NowFunc() + " end")
+	log.Debug(NowFunc())
+	defer log.Debug(NowFunc() + " end")
 
-	Infof("GET,Url:%v,Request:%+v", url, rq)
+	log.Infof("GET,Url:%v,Request:%+v", url, rq)
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 	for k, v := range headers {
@@ -95,7 +96,7 @@ func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers m
 	response, err := clientMap[getClient(url)].Do(request)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err, response)
+		log.Error(err, response)
 		return
 	}
 	defer response.Body.Close()
@@ -104,38 +105,38 @@ func HttpGet(url string, rq interface{}, rsp interface{}, timeout int, headers m
 	responseBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 	err = Json.Unmarshal(responseBytes, rsp)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 
-	Infof("Response:%+v", rsp)
+	log.Infof("Response:%+v", rsp)
 
 	return
 }
 
 func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers map[string]string, retryCount int) (err error) {
-	Debug(NowFunc())
-	defer Debug(NowFunc() + " end")
+	log.Debug(NowFunc())
+	defer log.Debug(NowFunc() + " end")
 
-	Infof("POST,Url:%v,Request:%+v", url, rq)
+	log.Infof("POST,Url:%v,Request:%+v", url, rq)
 
 	bytesData, err := json.Marshal(rq)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 	reader := bytes.NewReader(bytesData)
 	request, err := http.NewRequest("POST", url, reader)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 	for k, v := range headers {
@@ -147,7 +148,7 @@ func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers 
 	response, err := clientMap[getClient(url)].Do(request)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 	defer response.Body.Close()
@@ -156,17 +157,17 @@ func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers 
 	responseBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 	err = Json.Unmarshal(responseBytes, rsp)
 	if err != nil {
 		err = errors.New("服务器错误")
-		Error(err)
+		log.Error(err)
 		return
 	}
 
-	Infof("Response:%+v", rsp)
+	log.Infof("Response:%+v", rsp)
 
 	return
 }
@@ -245,14 +246,14 @@ func HttpPost(url string, rq interface{}, rsp interface{}, timeout int, headers 
 
 //旧版本的只支持这样form的并把rq先转成json串的样式
 func HttpPost2(url string, rq interface{}, rsp interface{}, timeout int) (err error) {
-	Debug(NowFunc())
-	defer Debug(NowFunc() + " end")
+	log.Debug(NowFunc())
+	defer log.Debug(NowFunc() + " end")
 
-	Infof("POST2,Url:%v,Request:%+v", url, rq)
+	log.Infof("POST2,Url:%v,Request:%+v", url, rq)
 	resty.SetTimeout(time.Duration(timeout) * time.Second)
 	b, err := Json.Marshal(rq)
 	if err != nil {
-		Error(err.Error())
+		log.Error(err.Error())
 		err = errors.New("参数无效")
 		return
 	}
@@ -263,10 +264,10 @@ func HttpPost2(url string, rq interface{}, rsp interface{}, timeout int) (err er
 		Post(url)
 	if err != nil {
 		err = errors.New("参数无效")
-		Error(err, resp)
+		log.Error(err, resp)
 		return
 	}
-	Infof("Response:%+v", rsp)
+	log.Infof("Response:%+v", rsp)
 
 	return
 }
