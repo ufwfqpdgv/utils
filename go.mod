@@ -18,7 +18,6 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/ufwfqpdgv/log v0.0.0-20191009092140-b93218894afd
-	github.com/ufwfqpdgv/samh_common_lib v0.0.0-20191008090432-97f98114635d
 	github.com/viant/toolbox v0.28.0
 	github.com/xormplus/core v0.0.0-20190724072625-00f5a85ad6e0
 	github.com/xormplus/xorm v0.0.0-20190926190243-42377f593eb1
